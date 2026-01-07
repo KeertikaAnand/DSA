@@ -1,7 +1,7 @@
 class Solution {
 public:
     int minOperations(int n) {
-        vector<int> arr;
+       /* vector<int> arr;
         int sum = 0;
 
         for(int i = 0; i < n; i++){
@@ -17,6 +17,7 @@ public:
             op += abs(arr[i] - target);
         }
 
-        return op / 2;
+        return op / 2;*/
+        return (n*n)/4;
     }
 };
