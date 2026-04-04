@@ -1,50 +1,50 @@
 class Solution {
 public:
-    vector<string> findarray(string &sentence){
-        vector<string> ans;
-        string word = "";
-        
-        for(int i = 0; i < sentence.size(); i++){
-            if(sentence[i] != ','){
-                word += sentence[i];
-            }
-            else{
-                ans.push_back(word);
-                word = "";
-            }
-        }
-        ans.push_back(word);
-        return ans;
-    }
-
     vector<string> invalidTransactions(vector<string>& transactions) {
         int n = transactions.size();
         
         vector<vector<string>> parsed(n);
+        unordered_map<string, vector<int>> mp;
         
         for(int i = 0; i < n; i++){
-            parsed[i] = findarray(transactions[i]);
+            stringstream ss(transactions[i]);
+            string temp;
+            
+            while(getline(ss, temp, ',')){
+                parsed[i].push_back(temp);
+            }
+            
+            mp[parsed[i][0]].push_back(i);
         }
         
         vector<bool> invalid(n, false);
         
-        for(int i = 0; i < n; i++){
-            int amount_i = stoi(parsed[i][2]);
-            int time_i = stoi(parsed[i][1]);
+        for(auto &it : mp){
+            vector<int> &idx = it.second;
             
-            if(amount_i > 1000){
-                invalid[i] = true;
-            }
+            sort(idx.begin(), idx.end(), [&](int a, int b){
+                return stoi(parsed[a][1]) < stoi(parsed[b][1]);
+            });
             
-            for(int j = 0; j < n; j++){
-                if(i == j) continue;
+            for(int i = 0; i < idx.size(); i++){
+                int i_idx = idx[i];
+                int time_i = stoi(parsed[i_idx][1]);
+                int amount_i = stoi(parsed[i_idx][2]);
                 
-                int time_j = stoi(parsed[j][1]);
+                if(amount_i > 1000){
+                    invalid[i_idx] = true;
+                }
                 
-                if(parsed[i][0] == parsed[j][0] &&
-                   abs(time_i - time_j) <= 60 &&
-                   parsed[i][3] != parsed[j][3]) {
-                    invalid[i] = true;
+                for(int j = i + 1; j < idx.size(); j++){
+                    int j_idx = idx[j];
+                    int time_j = stoi(parsed[j_idx][1]);
+                    
+                    if(time_j - time_i > 60) break;
+                    
+                    if(parsed[i_idx][3] != parsed[j_idx][3]){
+                        invalid[i_idx] = true;
+                        invalid[j_idx] = true;
+                    }
                 }
             }
         }
